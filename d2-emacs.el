@@ -37,14 +37,19 @@
   "Make output file for FILE-NAME."
   (string-replace ".d2" ".svg" file-name))
 
+;;;###autoload
 (defun d2-terminate ()
   "Terminate the current d2 process."
-  (kill-process *d2--process*))
+  (interactive)
+  (when *d2--process*
+    (kill-process *d2--process*)
+    (setf *d2--process* nil)))
 
 (defun d2--create-process (command)
   "Create the process using COMMAND."
   (setf *d2--process*
-	(make-process :buffer *d2--log-buffer-name*
+	(make-process :name "d2"
+		      :buffer *d2--log-buffer-name*
 		      :command command)))
 
 (defun d2--make-command-args (file-name)
@@ -54,8 +59,10 @@
 	file-name
 	(d2--make-output-file-name file-name)))
 
+;;;###autoload
 (defun d2-start ()
   "Start a d2 server."
+  (interactive)
   (let* ((file-name (buffer-file-name (current-buffer)))
 	 (command (d2--make-command-args file-name)))
     (d2--create-process command)))
